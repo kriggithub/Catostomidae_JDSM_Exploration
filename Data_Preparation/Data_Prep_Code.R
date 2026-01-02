@@ -1,10 +1,10 @@
 #### Data Preparation for JSDM Application to O/E Predictive Modeling
 #### K. Voss April 11, 2025
 #### This code produces three files from raw 2018-2019 NRSA data ( )
-#### (1) fish_table = All fish data (will need to subset out the catostomids)
+#### (1) fish_count_table = All fish data (will need to subset out the catostomids)
 #### (2) environment_table = The environmental variables unaffected by stress (see sources for description)
 #### (3) reference_table = Determines reference condition of sites and indicates 
-#### whether site should be used in model constuction ("C") or validation ("V")
+#### whether site should be used in model construction ("C") or validation ("V")
 ####
 #### NOTES: Using UID and SITE_ID as unique sample keys depending on data set. 
 #### Only including first visit to a site.
@@ -13,19 +13,28 @@
 ####Step 1: Load Packages
 library(tidyverse)
 
-####Step 2: Prepare Fish Taxa Data
-fish_data <- read.csv(file="NRSA1819_Fish Count.csv", header = T)
+# Set working directory (CHANGE)
+setwd("~/R/catostomidae_JDSM_exploration/Data_Preparation")
 
-fish_table <- fish_data %>% 
+
+####Step 2: Prepare Fish Taxa Data
+# Load in fish count data
+fish_count_data <- read.csv(file="NRSA1819_Fish Count.csv", header = T)
+
+# Filter data by SAP and NAP ecoregions and pivot data to show counts of fish by site
+fish_count_table <- fish_count_data %>% 
   filter(VISIT_NO == 1 & AG_ECO9 %in% c("SAP","NAP")) %>%
   pivot_wider(id_cols = SITE_ID, names_from = FINAL_NAME, values_from = TOTAL, values_fill = 0)
 
+
 ####Step 3: Abiotic Variables Unaffected by Stress (See Meador & Carlisle (2009))  
 #### https://doi-org.dml.regis.edu/10.1577/T08-132.1)
+# Load in data
 landscape_data <- read.csv(file="NRSA1819_Landscape Data.csv", header = T)
 habitat_data <- read.csv(file="NRSA1819_Physical Habitat Metrics.csv", header = T)
 site_data <- read.csv(file="NRSA1819_Site Information.csv", header = T)
 
+# Create environmental table by joining landscape, habitat, and site data
 environmental_table <- habitat_data %>%
   inner_join(site_data, by =c("UID")) %>%
   filter(VISIT_NO.x == 1 & AG_ECO9.x %in% c("SAP","NAP")) %>%
@@ -34,7 +43,7 @@ environmental_table <- habitat_data %>%
          slope = XSLOPE_use , ws_area = WSAREASQKM, ws_precip = PRECIP8110WS, ws_temp = TMEAN8110WS, 
          ws_runoff = RUNOFFWS, bfi_ws = BFIWS, perm_ws = PERMWS, erod_ws = KFFACTWS) 
 
-#Notes: lat & long in decimal degrees, ecoregion = Omernik Level III ecoregion 
+# Notes: lat & long in decimal degrees, ecoregion = Omernik Level III ecoregion 
 # Elevation in cm; Watershed Area in km2; Slope in % at site
 # Precipitation in mm (30 year watershed average);Temperature in deg C (30 year watershed average); 
 # Runoff in ??? (watershed average); Base Flow Index in % (watershed average); 
@@ -44,7 +53,8 @@ environmental_table <- habitat_data %>%
 ####Step 4: Variables needed for Reference Determination (See USEPA (2024) pp. 34)
 #### https://www.epa.gov/system/files/documents/2024-12/nrsa-2018-19-tsd-final-11252024.pdf
 
-set.seed(seed=447)
+
+set.seed(seed = 447)
 chemical_data <- read.csv(file="NRSA1819_Water Chemistry_Chlorophyll a.csv", header = T)
 chemical_data$VISIT_NO <- as.character(chemical_data$VISIT_NO) # To join properly below
 
@@ -81,14 +91,15 @@ table(reference_table$ref_cond, reference_table$val_cond, reference_table$AG_ECO
 #### This code produces subsetted data for the Catostomidae family, trait data, and a phylogenetic tree to be used for analysis
 
 ####Step 6: Subset Data sets to only include Catostomids and Same SITE_ID
+# Load packages
 library(rfishbase)
 
 # Filter taxa down to the desired species
-suckers <- load_taxa() %>%  filter(Family == "Catostomidae")
+suckers <- load_taxa() %>% filter(Family == "Catostomidae")
 
 # Create new dataframe with scientific species names from data
-colnames(fish_table)
-scinames <- common_to_sci(colnames(fish_table))
+colnames(fish_count_table)
+scinames <- common_to_sci(colnames(fish_count_table))
 
 
 # Filter scientific names to only include Catostomids 
@@ -103,34 +114,33 @@ scinames$Species <- scinames$Species %>%
 scinames$ComName <- scinames$ComName %>%
   str_to_lower() %>%
   str_replace_all(" ", ".")
-names(fish_table)[2:363] <- names(fish_table)[2:363] %>% 
+names(fish_count_table)[2:363] <- names(fish_count_table)[2:363] %>% 
   str_to_lower() %>%
   str_replace_all(" ", ".")
 
 
 # Create subsetted table
-fish_table_subset <- fish_table %>%
+fish_count_table_subset <- fish_count_table %>%
   select("SITE_ID", any_of(scinames$ComName))
 
 
 
 # Match Environmetal and Reference Table Sites with Fish Table
 environmental_table_subset <- environmental_table %>%
-  filter(SITE_ID %in% fish_table_subset$SITE_ID)
+  filter(SITE_ID %in% fish_count_table_subset$SITE_ID)
 reference_table_subset <- reference_table %>%
-  filter(SITE_ID %in% fish_table_subset$SITE_ID)
+  filter(SITE_ID %in% fish_count_table_subset$SITE_ID)
 
 
 # Join together Fish, Environmental, and Reference Tables, and select only reference sites
 data <- environmental_table_subset %>%
   left_join(reference_table_subset %>% select(SITE_ID, AG_ECO9, ref_cond, val_cond), by = "SITE_ID") %>% 
-  left_join(fish_table_subset, by = "SITE_ID") %>% filter(ref_cond == "REF")
+  left_join(fish_count_table_subset, by = "SITE_ID") %>% filter(ref_cond == "REF")
 
 
 # Adjust elevation to be in meters instead of centimeters
 data$elevation <- data$elevation/100
 
-# Create seperate dataframe for presence/absence data
 data_pres <- data %>% mutate(across(golden.redhorse:torrent.sucker, ~ ifelse(. > 0, 1, 0)))
 
 # Pull out sucker common and scientific names from data for other dataframes to reference
@@ -178,7 +188,7 @@ trait_dat$OTHERNAMES <- trait_dat$OTHERNAMES %>%
   str_replace_all(" ", ".")
 
 
-# pick traits of interest (length, temperature preference, substrate preference, current) and filter by data_cat_comnames
+# Pick traits of interest (length, temperature preference, substrate preference, current) and filter by data_cat_comnames
 trait_dat <- trait_dat %>% select(COMMONNAME, OTHERNAMES, MAXTL, MINTEMP, MAXTEMP, MUCK:LWD, SLOWCURR:FASTCURR) %>% 
   filter(COMMONNAME %in% data_cat_comnames | OTHERNAMES %in% data_cat_comnames)
 
@@ -225,7 +235,7 @@ write.dna(sequences, file = 'mito_sequences', format = 'fasta')
 fas <- "~/R/catostomidae_JDSM_exploration/data_cleaning/mito_sequences"
 seqs <- readDNAStringSet(fas)
 
-# view sequenecs
+# view sequences
 seqs
 
 # orient and align nucleotides
@@ -251,7 +261,6 @@ D <- dist.alignment(dna, matrix = "similarity")
 # initialize tree
 tree <- nj(D)
 tree <- ladderize(tree)
-
 
 
 # change tree tip labels
