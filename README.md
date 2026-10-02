@@ -53,6 +53,12 @@ install.packages(c("tidyverse", "rfishbase", "readxl", "ape", "seqinr", "Hmsc",
 BiocManager::install("DECIPHER")
 ```
 
+## References
+
+The PDF of this paper is kept locally but not tracked in this repository.
+
+- Yang, L., Mayden, R. L., & Naylor, G. J. P. (2024). Phylogeny and polyploidy evolution of the suckers (Teleostei: Catostomidae). *Biology*, 13(12), 1072. https://doi.org/10.3390/biology13121072
+
 ## Author
 
 **Kurt Riggin**: [GitHub](https://github.com/kriggithub) · [ORCID](https://orcid.org/0009-0004-4700-1251)
