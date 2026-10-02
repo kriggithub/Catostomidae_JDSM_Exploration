@@ -36,17 +36,19 @@ Exploratory single- and joint species distribution models (SSDM/JSDM) for North 
 | `Data_Preparation/mito_sequences`, `mito_aligned.fasta`, `mitochondrial_data.csv` | GenBank sequences, alignment and mitochondrial sample data |
 | `Data_Preparation/*_subset.csv` | Intermediate fish count, environmental and reference tables |
 | `Data_Preparation/com_sci_names.csv` | Common-to-scientific name lookup |
-| `Data_Preparation/Data_Prep.RData` | Saved data preparation workspace |
+| `Data_Preparation/Data_Prep.RData` | Data preparation workspace (generated locally, not tracked) |
 | `suckersabundancedata.csv`, `suckerspresencedata.csv` | Analysis datasets (abundance and presence/absence) for reference sites |
 | `trait_subset.csv`, `mito_tree.nex` | Trait subset and pruned phylogeny |
 | `Chapter_5_White_Suckers_SSDM.R` / `.Rmd` / `.html` | Ch. 5 white sucker SSDM: script, report source and rendered report |
 | `Chapter_6_Suckers_Niche_JSDM.R` / `.Rmd` / `.html` | Ch. 6 traits and phylogeny JSDM |
 | `Chapter_7_Suckers_Biotic_JDSM.R`, `Chapter_7_Suckers_Biotic_JSDM.Rmd` / `.html` | Ch. 7 biotic interactions JSDM |
-| `Chapter_*_Workspace.RData` | Saved model workspaces loaded by each chapter's `.Rmd` |
+| `Chapter_*_Workspace.RData` | Model workspaces loaded by each chapter's `.Rmd` (generated locally, not tracked) |
 
 ## Reproducing the analysis
 
 Open `catostomidae_JDSM_exploration.Rproj` in RStudio and run `Data_Preparation/Data_Prep_Code.R`, then the Chapter 5, 6 and 7 scripts in order. The `.R` scripts fit the models; the `.Rmd` files knit the reports from the saved workspaces. Paths in `setwd()` and `load()` are hard-coded to `~/R/catostomidae_JDSM_exploration/` and may need editing.
+
+The `.RData` workspaces (`Chapter_*_Workspace.RData`, `Data_Preparation/Data_Prep.RData`) are not tracked because they are too large for GitHub. Recreate each one by running the matching `.R` script first, then saving the session (e.g. `save.image("Chapter_5_Workspace.RData")`) before knitting its `.Rmd`.
 
 ```r
 install.packages(c("tidyverse", "rfishbase", "readxl", "ape", "seqinr", "Hmsc",
