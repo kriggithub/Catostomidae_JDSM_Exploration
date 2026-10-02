@@ -14,7 +14,7 @@ library(Hmsc)
 data <- read.csv("suckerspresencedata.csv")
 tree <- read.nexus("mito_tree.nex")
 traits <- read.csv("trait_subset.csv")
-com_to_sci <- read.csv("com_&_sci_names.csv")
+com_to_sci <- read.csv("Data_Preparation/com_sci_names.csv")
 
 
 

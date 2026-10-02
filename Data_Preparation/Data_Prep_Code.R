@@ -170,7 +170,7 @@ data_cat_scinames <- as.character(cat_scicomnames$Species)
 # write.csv(data_pres, file = "suckerspresencedata.csv")
 
 # Export dataframe for common name to scientific name as reference
-# write.csv(cat_scicomnames, file = "com_&_sci_names.csv")
+# write.csv(cat_scicomnames, file = "com_sci_names.csv")
 
 
 

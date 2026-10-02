@@ -35,9 +35,10 @@ Exploratory single- and joint species distribution models (SSDM/JSDM) for North 
 | `Data_Preparation/Table S1*.xlsx`, `Table S2*.xlsx` | Mitochondrial and nuclear sample tables from Yang, Mayden & Naylor (2024) |
 | `Data_Preparation/mito_sequences`, `mito_aligned.fasta`, `mitochondrial_data.csv` | GenBank sequences, alignment and mitochondrial sample data |
 | `Data_Preparation/*_subset.csv` | Intermediate fish count, environmental and reference tables |
+| `Data_Preparation/com_sci_names.csv` | Common-to-scientific name lookup |
 | `Data_Preparation/Data_Prep.RData` | Saved data preparation workspace |
 | `suckersabundancedata.csv`, `suckerspresencedata.csv` | Analysis datasets (abundance and presence/absence) for reference sites |
-| `trait_subset.csv`, `mito_tree.nex`, `com_&_sci_names.csv` | Trait subset, pruned phylogeny and common-to-scientific name lookup |
+| `trait_subset.csv`, `mito_tree.nex` | Trait subset and pruned phylogeny |
 | `Chapter_5_White_Suckers_SSDM.R` / `.Rmd` / `.html` | Ch. 5 white sucker SSDM: script, report source and rendered report |
 | `Chapter_6_Suckers_Niche_JSDM.R` / `.Rmd` / `.html` | Ch. 6 traits and phylogeny JSDM |
 | `Chapter_7_Suckers_Biotic_JDSM.R`, `Chapter_7_Suckers_Biotic_JSDM.Rmd` / `.html` | Ch. 7 biotic interactions JSDM |
